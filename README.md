@@ -1,4 +1,5 @@
 
+
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -20,3 +21,4 @@ spec:
             name: springboot-svc
             port:
               number: 8080
+
