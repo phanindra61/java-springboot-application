@@ -7,14 +7,16 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "babugudageri/spring-boot"
+        IMAGE_NAME = "apoorvar12/spring-boot"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
 
         stage('Git Clone') {
             steps {
-                git branch: 'main', url: 'https://github.com/BasavarajGudageri-05/java-springboot-application.git'
+                git branch: 'main',
+                    url: 'https://github.com/apoorvaramesh11/java-springboot-application.git'
             }
         }
 
@@ -33,35 +35,54 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 echo '🏗️ Building Docker image...'
-                sh 'docker build -t $IMAGE_NAME:latest .'
+                sh 'docker build -t $IMAGE_NAME:$IMAGE_TAG .'
             }
         }
 
         stage('Docker Login & Push') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'dockerID', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USER')]) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: '30f33663-88c0-44b1-8484-e5f5007c6856',
+                        passwordVariable: 'DOCKER_PASSWORD',
+                        usernameVariable: 'DOCKER_USER'
+                    )
+                ]) {
                     sh '''
                         echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
-                        docker push $IMAGE_NAME:latest
+                        docker push $IMAGE_NAME:$IMAGE_TAG
                     '''
                 }
             }
         }
 
-        stage('Deploy to Kubernetes') {
+        stage('Update K8S manifest & push to Repo') {
             steps {
-                echo "🚀 Deploying to Kubernetes..."
-                withKubeConfig(
-                    credentialsId: 'k8sID'
-                    
-                ) {
+                withCredentials([
+                    usernamePassword(
+                        credentialsId: '83d36b85-50cd-4f36-88da-5c2aaddfe24b',
+                        passwordVariable: 'GIT_PASSWORD',
+                        usernameVariable: 'GIT_USERNAME'
+                    )
+                ]) {
                     sh '''
-                      
-                        
-                        echo '📦 Applying deployment...'
-                        kubectl apply -f Deployment.yaml
-                        
-                        echo '✅ Deployment complete!'
+                        git config user.name "Jenkins"
+                        git config user.email "jenkins@example.com"
+
+                        # Pull latest changes first
+                        git pull --rebase origin main
+
+                        # Update Kubernetes image
+                        sed -i "s|image: .*|image: apoorvar12/spring-boot:${BUILD_NUMBER}|" Deployment.yaml
+
+                        # Add changed file
+                        git add Deployment.yaml
+
+                        # Commit
+                        git commit -m "Updated Deployment.yaml with build ${IMAGE_TAG}" || echo "No changes to commit"
+
+                        # Push
+                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/apoorvaramesh11/java-springboot-application.git HEAD:main
                     '''
                 }
             }
