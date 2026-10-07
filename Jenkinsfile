@@ -73,10 +73,10 @@ pipeline {
                         git pull --rebase origin main
 
                         # Update Kubernetes image
-                        sed -i "s|image: .*|image: apoorvar12/spring-boot:${BUILD_NUMBER}|" Deployment.yaml
+                        sed -i "s|image: .*|image: apoorvar12/spring-boot:${IMAGE_TAG}|" canary/Deployment-2.yaml
 
                         # Add changed file
-                        git add Deployment.yaml
+                        git add canary/Deployment-2.yaml
 
                         # Commit
                         git commit -m "Updated Deployment.yaml with build ${IMAGE_TAG}" || echo "No changes to commit"
