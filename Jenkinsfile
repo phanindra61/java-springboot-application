@@ -8,7 +8,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "apoorvar12/spring-boot"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG = "v${BUILD_NUMBER}"
     }
 
     stages {
