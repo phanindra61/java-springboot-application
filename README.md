@@ -1,4 +1,4 @@
-
+to make application secure we use this ingress
 
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -22,3 +22,77 @@ spec:
             port:
               number: 8080
 
+to fetch argocd UI password
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d; echo
+#recreate
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: spring-boot
+spec:
+  replicas: 3
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: spring-boot
+  template:
+    metadata:
+      labels:
+        app: spring-boot
+    spec:
+      containers:
+      - name: spring-boot
+        image: apoorvar12/spring-boot:2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+
+Rolling update
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: spring-boot
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: spring-boot
+  template:
+    metadata:
+      labels:
+        app: spring-boot
+    spec:
+      containers:
+      - name: spring-boot
+        image: apoorvar12/spring-boot:2
+        ports:
+        - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "1"
+
+Run jenkins as container
+docker run -d \
+  --name jenkins \
+  -p 8082:8080 \
+  -p 50000:50000 \
+  -v jenkins_home:/var/jenkins_home \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  jenkins/jenkins:lts
