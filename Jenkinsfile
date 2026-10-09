@@ -56,7 +56,7 @@ pipeline {
             }
         }
 
-        stage('Update K8S manifest & push to Repo') {
+        /* stage('Update K8S manifest & push to Repo') {
             steps {
                 withCredentials([
                     usernamePassword(
@@ -73,19 +73,20 @@ pipeline {
                         git pull --rebase origin main
 
                         # Update Kubernetes image
-                        sed -i "s|image: .*|image: apoorvar12/spring-boot:${IMAGE_TAG}|" canary/Deployment-2.yaml
+                        #sed -i "s|image: .*|image: apoorvar12/spring-boot:${IMAGE_TAG}|" blue-green/Deployment-green.yaml
 
                         # Add changed file
-                        git add canary/Deployment-2.yaml
+                       # git add blue-green/Deployment-green.yaml
 
                         # Commit
-                        git commit -m "Updated Deployment.yaml with build ${IMAGE_TAG}" || echo "No changes to commit"
+                       # git commit -m "Updated Deployment.yaml with build ${IMAGE_TAG}" || echo "No changes to commit"
 
                         # Push
-                        git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/apoorvaramesh11/java-springboot-application.git HEAD:main
+                       # git push https://${GIT_USERNAME}:${GIT_PASSWORD}@github.com/apoorvaramesh11/java-springboot-application.git HEAD:main
                     '''
                 }
             }
         }
+        */
     }
 }

@@ -6,22 +6,22 @@ metadata:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80},{"HTTPS":443}]'
-    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:289835835122:certificate/10539c93-ceed-413d-a0fe-362b439fc5f9
+    alb.ingress.kubernetes.io/certificate-arn: arn:aws:acm:ap-south-1:289835835122:certificate/a1098d2b-0692-4860-8d2b-a8615f20efdd
 
-    alb.ingress.kubernetes.io/actions.canary: >
+    alb.ingress.kubernetes.io/actions.blue-green: >
       {
-        "type":"forward",
-        "forwardConfig":{
-          "targetGroups":[
+        "type": "forward",
+        "forwardConfig": {
+          "targetGroups": [
             {
-              "serviceName":"springboot-svc-v1",
-              "servicePort":"8080",
-              "weight":0
+              "serviceName": "service-blue",
+              "servicePort": "8080",
+              "weight": 0
             },
             {
-              "serviceName":"springboot-svc-v2",
-              "servicePort":"8080",
-              "weight":100
+              "serviceName": "service-green",
+              "servicePort": "8080",
+              "weight": 100
             }
           ]
         }
@@ -37,6 +37,6 @@ spec:
         pathType: Prefix
         backend:
           service:
-            name: canary
+            name: blue-green
             port:
               name: use-annotation
